@@ -1,0 +1,13 @@
+version: '3.0'
+services:
+  app:
+    image: node:latest
+    restart: on-failure
+    working_dir: /app
+    volumes:
+      - "./:/app"
+      - "C:/Users/Xxenr/Documents/GitHub/bitsongjs:/bitsongjs"
+    ports:
+      - "5173:5173"
+    tty: true
+    stdin_open: true
