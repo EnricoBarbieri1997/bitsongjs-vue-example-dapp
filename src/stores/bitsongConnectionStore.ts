@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { Connector } from "@bitsongjs/wallet-connect"
 
@@ -61,28 +61,33 @@ const arbitraryPayload = {
 
 export const useBitsongConnectionStore = defineStore('bitsongJS', () => {
   let c = ref<Connector>()
+  let address = ref<string>()
+
   function openConnection()
   {
     c.value = new Connector({
       name: "Test BitsongJS DApp",
       url: "Megaurl.top",
     })
+    c.value.on("connect", async () => {
+      if(c.value === undefined || c.value.accounts.length < 1) return
+      address.value = await c.value.getAddress("osmo")
+    })
   }
 
   async function sign()
   {
-    if(c.value == undefined || c.value.accounts.length < 1) return
-    console.log(c.value?.accounts)
-    console.log("Sign", await c.value.sign("bwasmnet-1", getSwapMessage(c.value.accounts[0])))
+    if(c.value == undefined || address.value === undefined) return
+    console.log("Sign", await c.value.sign("bwasmnet-1", getSwapMessage(address.value)))
   }
   async function broadcast()
   {
-    if(c.value == undefined || c.value.accounts.length < 1) return
-    console.log("Broadcast", await c.value.signAndBroadcast("osmosis-1", [getSendMessage(c.value.accounts[0])]))
+    if(c.value == undefined || address.value === undefined) return
+    console.log("Broadcast", await c.value.signAndBroadcast("osmosis-1", [getSendMessage(address.value)]))
   }
   async function signArbitrary()
   {
-    if(c.value == undefined || c.value.accounts.length < 1) return
+    if(c.value == undefined || address.value === undefined) return
     console.log("Arbitrary", await c.value.signArbitrary("osmosis-1", arbitraryPayload))
   }
 
